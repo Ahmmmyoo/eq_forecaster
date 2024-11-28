@@ -7,7 +7,8 @@ USGS_API_URL = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_da
 
 def fetch_earthquake_data():
     response = requests.get(USGS_API_URL)
-    st.write(response.json())
+    # st.write(response.json())
+    st.dataframe(response.json()["features"])
     if response.status_code == 200:
         return response.json()
     else:

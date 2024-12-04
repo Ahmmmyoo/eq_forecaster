@@ -2,13 +2,28 @@ import streamlit as st
 import requests
 import pandas as pd
 import pydeck as pdk
+from datetime import datetime, timedelta
 
-USGS_API_URL = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson"
+BASE_URL = "https://earthquake.usgs.gov/fdsnws/event/1/query"
 
-def fetch_earthquake_data():
-    response = requests.get(USGS_API_URL)
-    # st.write(response.json())
-    st.dataframe(response.json()["features"])
+today = datetime.now()
+six_months_ago = today - timedelta(days=182)
+start_of_this_year = datetime(today.year, 1, 1)
+end_of_previous_year = datetime(today.year - 1, 12, 31)
+start_of_previous_year = datetime(today.year - 1, 1, 1)
+
+API_URLS = {
+    "Past Hour": "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_hour.geojson",
+    "Past Day": "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson",
+    "Past 7 Days": "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson",
+    "Past 30 Days": "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_month.geojson",
+    "Past 6 Months": f"{BASE_URL}?starttime={six_months_ago.strftime('%Y-%m-%d')}&endtime={today.strftime('%Y-%m-%d')}&format=geojson&limit=20000",
+    "This Year": f"{BASE_URL}?starttime={start_of_this_year.strftime('%Y-%m-%d')}&endtime={today.strftime('%Y-%m-%d')}&format=geojson&limit=20000",
+    "Previous Year": f"{BASE_URL}?starttime={start_of_previous_year.strftime('%Y-%m-%d')}&endtime={end_of_previous_year.strftime('%Y-%m-%d')}&format=geojson&limit=20000",
+}
+
+def fetch_earthquake_data(time_period="Past Day"):
+    response = requests.get(API_URLS[time_period])
     if response.status_code == 200:
         return response.json()
     else:
@@ -41,24 +56,31 @@ if "filtered_df" not in st.session_state:
     st.session_state.filtered_df = None
 
 st.set_page_config(page_title="Earthquake Map", layout="wide")
-st.title("Earthquake Map - Past 24 Hours")
+st.title("EQ Forecaster")
 st.sidebar.markdown("### Filter Options")
+time_period = st.selectbox(
+    "Select the time period for the earth quakes",
+    ("Past Hour", "Past Day", "Past 7 Days", "Past 30 Days", "Past 6 Months", "This Year", "Previous Year"),
+    label_visibility="hidden",
+    index= None,
+    placeholder="Select the Time Period",
+    key="time_period_selectbox",
+)
 
-data = fetch_earthquake_data()
+if time_period:
+    data = fetch_earthquake_data(time_period)
+else:
+    data = fetch_earthquake_data()  
+
 if data:
     df = parse_earthquake_data(data)
+    df = df.dropna(subset=["magnitude"])
     min_magnitude = st.sidebar.slider("Set Minimum Magnitude", 0.0, 10.0, 0.0, 0.1)
-
     if st.sidebar.button("Filter Magnitude"):
         st.session_state.filtered_df = df[df["magnitude"] >= min_magnitude]
         st.session_state.filtered_df["color"] = st.session_state.filtered_df["magnitude"].apply(get_color)
-
     filtered_df = st.session_state.filtered_df if st.session_state.filtered_df is not None else df
     filtered_df["color"] = filtered_df["magnitude"].apply(get_color)
-
-    st.markdown(f"### Total Earthquakes: {len(filtered_df)}")
-    st.dataframe(filtered_df.drop("color", axis=1))
-
     col1, col2 = st.columns([4, 1])
 
     with col1:

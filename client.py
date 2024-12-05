@@ -22,6 +22,14 @@ API_URLS = {
     "Previous Year": f"{BASE_URL}?starttime={start_of_previous_year.strftime('%Y-%m-%d')}&endtime={end_of_previous_year.strftime('%Y-%m-%d')}&format=geojson&limit=20000",
 }
 
+MAP_API_URLS = {
+    "Light Map": "mapbox://styles/mapbox/light-v9",
+    "Dark Map": "mapbox://styles/mapbox/dark-v9",
+    "Street Map": "mapbox://styles/mapbox/streets-v11",
+    "Satellite Map": "mapbox://styles/mapbox/satellite-v9",
+    "Heat Map": "mapbox://styles/mapbox/dark-v9",
+}
+
 def fetch_earthquake_data(time_period="Past Day"):
     response = requests.get(API_URLS[time_period])
     if response.status_code == 200:
@@ -29,6 +37,9 @@ def fetch_earthquake_data(time_period="Past Day"):
     else:
         st.error("Failed to fetch data from USGS API.")
         return None
+
+def switch_map_style(map_type="light map"):
+    return MAP_API_URLS[map_type]
 
 def parse_earthquake_data(data):
     features = data["features"]
@@ -60,7 +71,7 @@ st.title("EQ Forecaster")
 st.sidebar.markdown("### Filter Options")
 time_period = st.selectbox(
     "Select the time period for the earth quakes",
-    ("Past Hour", "Past Day", "Past 7 Days", "Past 30 Days", "Past 6 Months", "This Year", "Previous Year"),
+    list(API_URLS.keys()),
     label_visibility="hidden",
     index= None,
     placeholder="Select the Time Period",
@@ -84,25 +95,44 @@ if data:
     col1, col2 = st.columns([4, 1])
 
     with col1:
+        map_type = st.selectbox(
+            "Select the type of map",
+            list(MAP_API_URLS.keys()),
+            label_visibility="hidden",
+            index=0,
+            placeholder="Select the Map Type",
+        )
+
+        if map_type == "Heat Map":
+            layer = pdk.Layer(
+                "HeatmapLayer",
+                data=filtered_df,
+                get_position=["longitude", "latitude"],
+                get_weight="magnitude",
+                radius_pixels=50,
+                intensity=1,
+                threshold=0.3,
+            )
+        else:
+            layer = pdk.Layer(
+                "ScatterplotLayer",
+                data=filtered_df,
+                get_position=["longitude", "latitude"],
+                get_color="color",
+                get_radius="magnitude * 10000",
+                pickable=True,
+            )
+    
         st.pydeck_chart(
             pdk.Deck(
-                map_style="mapbox://styles/mapbox/light-v9",
+                map_style=switch_map_style(map_type),
                 initial_view_state=pdk.ViewState(
                     latitude=filtered_df["latitude"].mean(),
                     longitude=filtered_df["longitude"].mean(),
                     zoom=3,
                     pitch=0,
                 ),
-                layers=[
-                    pdk.Layer(
-                        "ScatterplotLayer",
-                        data=filtered_df,
-                        get_position=["longitude", "latitude"],
-                        get_color="color",
-                        get_radius="magnitude * 10000",
-                        pickable=True,
-                    ),
-                ],
+                layers=[layer],
                 tooltip={"text": "Place: {place}\nMagnitude: {magnitude}"},
             )
         )

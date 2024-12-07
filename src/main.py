@@ -31,17 +31,17 @@ MAP_API_URLS = {
 }
 
 MAP_CONTINENT = {
-    "Asia": [34.0479, 100.6197],           # Approximate center of Asia
-    "Africa": [-8.7832, 34.5085],          # Approximate center of Africa
-    "North America": [54.5260, -105.2551], # Approximate center of North America
-    "South America": [-8.7832, -55.4915],  # Approximate center of South America
-    "Europe": [54.5260, 15.2551],          # Approximate center of Europe
-    "Australia": [-25.2744, 133.7751],     # Approximate center of Australia/Oceania
-    "Antarctica": [-82.8628, 135.0000]     # Approximate center of Antarctica
+    "Asia": [34.0479, 100.6197],           
+    "Africa": [-8.7832, 34.5085],          
+    "North America": [54.5260, -105.2551],  
+    "South America": [-8.7832, -55.4915],   
+    "Europe": [54.5260, 15.2551],          
+    "Australia": [-25.2744, 133.7751],     
+    "Antarctica": [-82.8628, 135.0000]     
 }
 
 def fetch_earthquake_data(time_period="Past 30 Days"):
-    response = requests.get(API_URLS[time_period])
+    response = requests.get(API_URLS[time_period], timeout=50)
     if response.status_code == 200:
         return response.json()
     else:
@@ -78,51 +78,59 @@ if "filtered_df" not in st.session_state:
 
 st.set_page_config(page_title="Earthquake Map", layout="wide")
 st.title("EQ Forecaster")
-st.sidebar.markdown("### Filter Options")
-time_period = st.selectbox(
-    "Select the time period for the earth quakes",
-    list(API_URLS.keys()),
-    label_visibility="hidden",
-    index= None,
-    placeholder="Select the Time Period",
-    key="time_period_selectbox",
-)
 
-# Gives the output of the Current time period
-if time_period is not None:
-    st.write(f"Current Time Period :green[{time_period}]")
-else:
-    st.write(f"Current Time Period :green[Default (Past 30 Days)]")
-    
-current_continent = st.selectbox("Select the Continent",
-                                 list(MAP_CONTINENT.keys()),
-                                 label_visibility="hidden",
-                                 index=0,
-                                 placeholder="Select the Continent",
-                                 key="current_continent_selectbox")
+time_period_col, current_continent_col, _ = st.columns([0.3, 0.3, 0.6], gap="medium", vertical_alignment="top")
+with time_period_col:
+    time_period = st.selectbox(
+        "Select the time period for the earth quakes",
+        list(API_URLS.keys()),
+        label_visibility="hidden",
+        index= None,
+        placeholder="Select the Time Period",
+        key="time_period_selectbox",
+    )
+    if time_period is not None:
+        st.write(f"Current Time Period :red[{time_period}]")
+    else:
+        time_period = "Past 30 Days"
+        st.write(f"Current Time Period :red[{time_period} [Default]]")
 
-# Gives the output of the Current Continent
-if current_continent is not None:
-    st.write(f"Current Continent :green[{current_continent}]")
-    st.write(f"Latitude :green[{MAP_CONTINENT[current_continent][0]}], Longitude :green[{MAP_CONTINENT[current_continent][1]}]")
+with current_continent_col:
+    current_continent = st.selectbox("Select the Continent",
+                                    list(MAP_CONTINENT.keys()),
+                                    label_visibility="hidden",
+                                    index=None,
+                                    placeholder="Select the Continent",
+                                    key="current_continent_selectbox")
+
+    if current_continent is not None:
+        st.write(f"Current Continent :red[{current_continent}]")
+    if current_continent is None:
+        current_continent = "Asia"
+        st.write(f"Current Continent :red[{current_continent} [Default]]")
+    st.write(f"[Latitude- :red[{MAP_CONTINENT[current_continent][0]}], Longitude- :red[{MAP_CONTINENT[current_continent][1]}]]")
     
 if time_period:
     data = fetch_earthquake_data(time_period)
 else:
     data = fetch_earthquake_data()  
-
+    
+slider_col, filter_btn_col, _ = st.columns([0.45, 0.45, 0.22], gap="large", vertical_alignment="center")
 if data:
-    df = parse_earthquake_data(data)
-    df = df.dropna(subset=["magnitude"])
-    min_magnitude = st.sidebar.slider("Set Minimum Magnitude", 0.0, 10.0, 0.0, 0.1)
-    if st.sidebar.button("Filter Magnitude"):
-        st.session_state.filtered_df = df[df["magnitude"] >= min_magnitude]
-        st.session_state.filtered_df["color"] = st.session_state.filtered_df["magnitude"].apply(get_color)
-    filtered_df = st.session_state.filtered_df if st.session_state.filtered_df is not None else df
-    filtered_df["color"] = filtered_df["magnitude"].apply(get_color)
-    col1, col2 = st.columns([4, 1])
+    with slider_col:
+        df = parse_earthquake_data(data)
+        df = df.dropna(subset=["magnitude"])
+        min_magnitude = st.slider("Set Minimum Magnitude", 0.0, 10.0, 0.0, 0.1)
+    with filter_btn_col:
+        filter_mag_btn = st.button("Filter Magnitude")
+        if filter_mag_btn:
+            st.session_state.filtered_df = df[df["magnitude"] >= min_magnitude]
+            st.session_state.filtered_df["color"] = st.session_state.filtered_df["magnitude"].apply(get_color)
+        filtered_df = st.session_state.filtered_df if st.session_state.filtered_df is not None else df
+        filtered_df["color"] = filtered_df["magnitude"].apply(get_color)
 
-    with col1:
+    map_type_col, _ = st.columns([1, 10])
+    with map_type_col:
         map_type = st.selectbox(
             "Select the type of map",
             list(MAP_API_URLS.keys()),
@@ -131,6 +139,8 @@ if data:
             placeholder="Select the Map Type",
         )
 
+    map_col, bar_col = st.columns([0.9, 0.05], vertical_alignment="center")
+    with map_col:
         if map_type == "Heat Map":
             layer = pdk.Layer(
                 "HeatmapLayer",
@@ -151,31 +161,28 @@ if data:
                 pickable=True,
             )
         
-        st.write(f"Current Map Type :green[{map_type}]")
-    
         st.pydeck_chart(
             pdk.Deck(
                 map_style=switch_map_style(map_type),
                 initial_view_state=pdk.ViewState(
                     latitude=MAP_CONTINENT[current_continent][0],
                     longitude=MAP_CONTINENT[current_continent][1],
-                    # latitude=filtered_df["latitude"].mean(),
-                    # longitude=filtered_df["longitude"].mean(),
-                    zoom=3,
+                    zoom=2.5,
                     pitch=0,
                 ),
                 layers=[layer],
                 tooltip={"text": "Place: {place}\nMagnitude: {magnitude}"},
-            )
+            ),
+            height=600
         )
 
-    with col2:
+    with bar_col:
         st.markdown(
             """
-            <div style="text-align: center; margin-top: 10px;">
-            <p style="margin-bottom: 10px;">High (Red)</p>
-            <div style="width: 40px; height: 400px; background: linear-gradient(to bottom, red, yellow); margin: auto;"></div>
-            <p style="margin-top: 10px;">Low (Yellow)</p>
+            <div style="text-align: center; display: flex; flex-direction: column; align-items: center">
+            <p style="margin-bottom: 10px; color: red">High</p>
+            <div style="width: 33px; height: 500px; background: linear-gradient(to bottom, red, yellow); margin: auto;"></div>
+            <p style="margin-top: 10px; color: yellow">Low</p>
             </div>
             """,
             unsafe_allow_html=True,

@@ -78,7 +78,7 @@ if "filtered_df" not in st.session_state:
 
 st.set_page_config(page_title="Earthquake Map", layout="wide")
 st.title("EQ Forecaster")
-st.sidebar.markdown("### Filter Options")
+# st.sidebar.markdown("### Filter Options") #Dont need this
 time_period = st.selectbox(
     "Select the time period for the earth quakes",
     list(API_URLS.keys()),
@@ -113,6 +113,17 @@ if time_period:
     data = fetch_earthquake_data(time_period)
 else:
     data = fetch_earthquake_data()  
+ 
+# Add custom CSS for vertical alignment
+st.markdown("""
+    <style>
+    .stColumn {
+        display: flex;
+        flex-direction: column;
+        justify-content: center; /* Align items vertically centered */
+    }
+    </style>
+    """, unsafe_allow_html=True) 
     
 col3, col4, col5 = st.columns([1, 4, 2])
 

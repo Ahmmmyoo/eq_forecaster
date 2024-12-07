@@ -23,14 +23,24 @@ API_URLS = {
 }
 
 MAP_API_URLS = {
-    "Light Map": "mapbox://styles/mapbox/light-v9",
     "Dark Map": "mapbox://styles/mapbox/dark-v9",
+    "Light Map": "mapbox://styles/mapbox/light-v9",
     "Street Map": "mapbox://styles/mapbox/streets-v11",
     "Satellite Map": "mapbox://styles/mapbox/satellite-v9",
     "Heat Map": "mapbox://styles/mapbox/dark-v9",
 }
 
-def fetch_earthquake_data(time_period="Past Day"):
+MAP_CONTINENT = {
+    "Asia": [34.0479, 100.6197],           # Approximate center of Asia
+    "Africa": [-8.7832, 34.5085],          # Approximate center of Africa
+    "North America": [54.5260, -105.2551], # Approximate center of North America
+    "South America": [-8.7832, -55.4915],  # Approximate center of South America
+    "Europe": [54.5260, 15.2551],          # Approximate center of Europe
+    "Australia": [-25.2744, 133.7751],     # Approximate center of Australia/Oceania
+    "Antarctica": [-82.8628, 135.0000]     # Approximate center of Antarctica
+}
+
+def fetch_earthquake_data(time_period="Past 30 Days"):
     response = requests.get(API_URLS[time_period])
     if response.status_code == 200:
         return response.json()
@@ -38,7 +48,7 @@ def fetch_earthquake_data(time_period="Past Day"):
         st.error("Failed to fetch data from USGS API.")
         return None
 
-def switch_map_style(map_type="dark map"):
+def switch_map_style(map_type="Dark Map"):
     return MAP_API_URLS[map_type]
 
 def parse_earthquake_data(data):
@@ -78,7 +88,24 @@ time_period = st.selectbox(
     key="time_period_selectbox",
 )
 
+# Gives the output of the Current time period
+if time_period is not None:
+    st.write(f"Current Time Period :green[{time_period}]")
+else:
+    st.write(f"Current Time Period :green[Default (Past 30 Days)]")
+    
+current_continent = st.selectbox("Select the Continent",
+                                 list(MAP_CONTINENT.keys()),
+                                 label_visibility="hidden",
+                                 index=0,
+                                 placeholder="Select the Continent",
+                                 key="current_continent_selectbox")
 
+# Gives the output of the Current Continent
+if current_continent is not None:
+    st.write(f"Current Continent :green[{current_continent}]")
+    st.write(f"Latitude :green[{MAP_CONTINENT[current_continent][0]}], Longitude :green[{MAP_CONTINENT[current_continent][1]}]")
+    
 if time_period:
     data = fetch_earthquake_data(time_period)
 else:
@@ -123,13 +150,15 @@ if data:
                 get_radius="magnitude * 10000",
                 pickable=True,
             )
+        
+        st.write(f"Current Map Type :green[{map_type}]")
     
         st.pydeck_chart(
             pdk.Deck(
                 map_style=switch_map_style(map_type),
                 initial_view_state=pdk.ViewState(
-                    latitude=30.3753,
-                    longitude=69.3451,
+                    latitude=MAP_CONTINENT[current_continent][0],
+                    longitude=MAP_CONTINENT[current_continent][1],
                     # latitude=filtered_df["latitude"].mean(),
                     # longitude=filtered_df["longitude"].mean(),
                     zoom=3,

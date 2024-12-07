@@ -83,7 +83,55 @@ def show_data_table():
     # Make the DF index start from 1 instead of 0
     filtered_df_table_form.index = range(1, len(filtered_df_table_form)+1)
     # Show the table
-    st.write(filtered_df_table_form)
+    st.dataframe(filtered_df_table_form, use_container_width=True)
+    
+def show_main_map():
+            if map_type == "Heat Map":
+                layer = pdk.Layer(
+                    "HeatmapLayer",
+                    data=filtered_df,
+                    get_position=["longitude", "latitude"],
+                    get_weight="magnitude",
+                    radius_pixels=50,
+                    intensity=1,
+                    threshold=0.3,
+                )
+            else:
+                layer = pdk.Layer(
+                    "ScatterplotLayer",
+                    data=filtered_df,
+                    get_position=["longitude", "latitude"],
+                    get_color="color",
+                    get_radius="magnitude * 10000",
+                    pickable=True,
+                )
+            
+            st.pydeck_chart(
+                pdk.Deck(
+                    map_style=switch_map_style(map_type),
+                    initial_view_state=pdk.ViewState(
+                        latitude=MAP_CONTINENT[current_continent][0],
+                        longitude=MAP_CONTINENT[current_continent][1],
+                        zoom=2.5,
+                        pitch=0,
+                    ),
+                    layers=[layer],
+                    tooltip={"text": "Place: {place}\nMagnitude: {magnitude}"},
+                ),
+                height=600
+            )
+
+def show_color_bar():
+            st.markdown(
+                """
+                <div style="text-align: center; display: flex; flex-direction: column; align-items: center">
+                <p style="margin-bottom: 10px; color: red">High</p>
+                <div style="width: 33px; height: 500px; background: linear-gradient(to bottom, red, yellow); margin: auto;"></div>
+                <p style="margin-top: 10px; color: yellow">Low</p>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
 
 if "filtered_df" not in st.session_state:
     st.session_state.filtered_df = None
@@ -156,51 +204,9 @@ if data:
 
     map_col, bar_col = st.columns([0.9, 0.05], vertical_alignment="center")
     with map_col:
-        if map_type == "Heat Map":
-            layer = pdk.Layer(
-                "HeatmapLayer",
-                data=filtered_df,
-                get_position=["longitude", "latitude"],
-                get_weight="magnitude",
-                radius_pixels=50,
-                intensity=1,
-                threshold=0.3,
-            )
-        else:
-            layer = pdk.Layer(
-                "ScatterplotLayer",
-                data=filtered_df,
-                get_position=["longitude", "latitude"],
-                get_color="color",
-                get_radius="magnitude * 10000",
-                pickable=True,
-            )
-        
-        st.pydeck_chart(
-            pdk.Deck(
-                map_style=switch_map_style(map_type),
-                initial_view_state=pdk.ViewState(
-                    latitude=MAP_CONTINENT[current_continent][0],
-                    longitude=MAP_CONTINENT[current_continent][1],
-                    zoom=2.5,
-                    pitch=0,
-                ),
-                layers=[layer],
-                tooltip={"text": "Place: {place}\nMagnitude: {magnitude}"},
-            ),
-            height=600
-        )
+        show_main_map()
 
     with bar_col:
-        st.markdown(
-            """
-            <div style="text-align: center; display: flex; flex-direction: column; align-items: center">
-            <p style="margin-bottom: 10px; color: red">High</p>
-            <div style="width: 33px; height: 500px; background: linear-gradient(to bottom, red, yellow); margin: auto;"></div>
-            <p style="margin-top: 10px; color: yellow">Low</p>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
+        show_color_bar()
 
 show_data_table()

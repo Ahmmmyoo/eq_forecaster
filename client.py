@@ -23,14 +23,14 @@ API_URLS = {
 }
 
 MAP_API_URLS = {
-    "Light Map": "mapbox://styles/mapbox/light-v9",
     "Dark Map": "mapbox://styles/mapbox/dark-v9",
+    "Light Map": "mapbox://styles/mapbox/light-v9",
     "Street Map": "mapbox://styles/mapbox/streets-v11",
     "Satellite Map": "mapbox://styles/mapbox/satellite-v9",
     "Heat Map": "mapbox://styles/mapbox/dark-v9",
 }
 
-def fetch_earthquake_data(time_period="Past Day"):
+def fetch_earthquake_data(time_period="Past 30 Days"):
     response = requests.get(API_URLS[time_period])
     if response.status_code == 200:
         return response.json()
@@ -38,7 +38,7 @@ def fetch_earthquake_data(time_period="Past Day"):
         st.error("Failed to fetch data from USGS API.")
         return None
 
-def switch_map_style(map_type="light map"):
+def switch_map_style(map_type="Dark Map"):
     return MAP_API_URLS[map_type]
 
 def parse_earthquake_data(data):
@@ -77,6 +77,12 @@ time_period = st.selectbox(
     placeholder="Select the Time Period",
     key="time_period_selectbox",
 )
+
+# Gives the output of the Current time period
+if time_period is not None:
+    st.write(f"Current Time Period :green[{time_period}]")
+else:
+    st.write(f"Current Time Period :green[Default (Past 30 Days)]")
 
 if time_period:
     data = fetch_earthquake_data(time_period)
@@ -122,13 +128,17 @@ if data:
                 get_radius="magnitude * 10000",
                 pickable=True,
             )
+        
+        st.write(f"Current Map Type :green[{map_type}]")
     
         st.pydeck_chart(
             pdk.Deck(
                 map_style=switch_map_style(map_type),
                 initial_view_state=pdk.ViewState(
-                    latitude=filtered_df["latitude"].mean(),
-                    longitude=filtered_df["longitude"].mean(),
+                    latitude=30.3753,
+                    longitude=69.3451,
+                    # latitude=filtered_df["latitude"].mean(),
+                    # longitude=filtered_df["longitude"].mean(),
                     zoom=3,
                     pitch=0,
                 ),

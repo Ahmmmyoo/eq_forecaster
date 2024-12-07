@@ -113,16 +113,24 @@ if time_period:
     data = fetch_earthquake_data(time_period)
 else:
     data = fetch_earthquake_data()  
+    
+col3, col4, col5 = st.columns([1, 4, 2])
+
 
 if data:
-    df = parse_earthquake_data(data)
-    df = df.dropna(subset=["magnitude"])
-    min_magnitude = st.sidebar.slider("Set Minimum Magnitude", 0.0, 10.0, 0.0, 0.1)
-    if st.sidebar.button("Filter Magnitude"):
-        st.session_state.filtered_df = df[df["magnitude"] >= min_magnitude]
-        st.session_state.filtered_df["color"] = st.session_state.filtered_df["magnitude"].apply(get_color)
-    filtered_df = st.session_state.filtered_df if st.session_state.filtered_df is not None else df
-    filtered_df["color"] = filtered_df["magnitude"].apply(get_color)
+    
+    with col3:
+        st.write("##### Filter Options")
+    with col4:
+        df = parse_earthquake_data(data)
+        df = df.dropna(subset=["magnitude"])
+        min_magnitude = st.slider("Set Minimum Magnitude", 0.0, 10.0, 0.0, 0.1)
+    with col5:
+        if st.button("Filter Magnitude"):
+            st.session_state.filtered_df = df[df["magnitude"] >= min_magnitude]
+            st.session_state.filtered_df["color"] = st.session_state.filtered_df["magnitude"].apply(get_color)
+        filtered_df = st.session_state.filtered_df if st.session_state.filtered_df is not None else df
+        filtered_df["color"] = filtered_df["magnitude"].apply(get_color)
     col1, col2 = st.columns([4, 1])
 
     with col1:
@@ -187,10 +195,10 @@ if data:
     with col2:
         st.markdown(
             """
-            <div style="text-align: center; margin-top: 10px;">
-            <p style="margin-bottom: 10px;">High (Red)</p>
+            <div style="text-align: center; margin-top: 200px;">
+            <p style="margin-bottom: 10px;">Recent (Red)</p>
             <div style="width: 40px; height: 400px; background: linear-gradient(to bottom, red, yellow); margin: auto;"></div>
-            <p style="margin-top: 10px;">Low (Yellow)</p>
+            <p style="margin-top: 10px;">Old (Yellow)</p>
             </div>
             """,
             unsafe_allow_html=True,

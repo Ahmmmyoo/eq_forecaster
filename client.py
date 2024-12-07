@@ -30,6 +30,16 @@ MAP_API_URLS = {
     "Heat Map": "mapbox://styles/mapbox/dark-v9",
 }
 
+MAP_CONTINENT = {
+    "Asia": [34.0479, 100.6197],           # Approximate center of Asia
+    "Africa": [-8.7832, 34.5085],          # Approximate center of Africa
+    "North America": [54.5260, -105.2551], # Approximate center of North America
+    "South America": [-8.7832, -55.4915],  # Approximate center of South America
+    "Europe": [54.5260, 15.2551],          # Approximate center of Europe
+    "Australia": [-25.2744, 133.7751],     # Approximate center of Australia/Oceania
+    "Antarctica": [-82.8628, 135.0000]     # Approximate center of Antarctica
+}
+
 def fetch_earthquake_data(time_period="Past 30 Days"):
     response = requests.get(API_URLS[time_period])
     if response.status_code == 200:
@@ -83,7 +93,19 @@ if time_period is not None:
     st.write(f"Current Time Period :green[{time_period}]")
 else:
     st.write(f"Current Time Period :green[Default (Past 30 Days)]")
+    
+current_continent = st.selectbox("Select the Continent",
+                                 list(MAP_CONTINENT.keys()),
+                                 label_visibility="hidden",
+                                 index=0,
+                                 placeholder="Select the Continent",
+                                 key="current_continent_selectbox")
 
+# Gives the output of the Current Continent
+if current_continent is not None:
+    st.write(f"Current Continent :green[{current_continent}]")
+    st.write(f"Latitude :green[{MAP_CONTINENT[current_continent][0]}], Longitude :green[{MAP_CONTINENT[current_continent][1]}]")
+    
 if time_period:
     data = fetch_earthquake_data(time_period)
 else:
@@ -135,8 +157,8 @@ if data:
             pdk.Deck(
                 map_style=switch_map_style(map_type),
                 initial_view_state=pdk.ViewState(
-                    latitude=30.3753,
-                    longitude=69.3451,
+                    latitude=MAP_CONTINENT[current_continent][0],
+                    longitude=MAP_CONTINENT[current_continent][1],
                     # latitude=filtered_df["latitude"].mean(),
                     # longitude=filtered_df["longitude"].mean(),
                     zoom=3,

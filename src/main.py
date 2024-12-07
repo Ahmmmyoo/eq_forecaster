@@ -72,6 +72,18 @@ def get_color(magnitude):
         0,
         200,
     ]
+    
+def show_data_table():
+    # Drop Color Column        
+    filtered_df_table_form = filtered_df.drop("color", axis=1)
+    # Rearrange the Columns
+    filtered_df_table_form = filtered_df_table_form[["time", "magnitude", "latitude", "longitude", "place"]]
+    # Rename the Columns
+    filtered_df_table_form = filtered_df_table_form.rename(columns={"time":"Time", "magnitude":"Magnitude", "latitude":"Latitude", "longitude":"Longitude", "place":"Place"})
+    # Make the DF index start from 1 instead of 0
+    filtered_df_table_form.index = range(1, len(filtered_df_table_form)+1)
+    # Show the table
+    st.write(filtered_df_table_form)
 
 if "filtered_df" not in st.session_state:
     st.session_state.filtered_df = None
@@ -190,3 +202,5 @@ if data:
             """,
             unsafe_allow_html=True,
         )
+
+show_data_table()

@@ -128,12 +128,13 @@ if data:
     with col1:
         # Fix this ASAP, Style not working ---------------------------------------------------------------------------------------------
         st.markdown("""
-                    <style>
-                    #mapMode {
-                        max-width:300px;
-                    }
-                    </style>
-                    """, unsafe_allow_html=True)
+            <style>
+            #mapMode {
+                max-width: 300px;
+            }
+            </style>
+            """, unsafe_allow_html=True)
+        # Add the selectbox with a unique ID wrapped in the custom div
         st.markdown('<div id="mapMode">', unsafe_allow_html=True)
         map_type = st.selectbox(
             "Select the type of map",

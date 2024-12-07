@@ -126,7 +126,7 @@ if data:
     col1, col2 = st.columns([4, 1])
 
     with col1:
-        # Fix this ASAP, Style not working
+        # Fix this ASAP, Style not working ---------------------------------------------------------------------------------------------
         st.markdown("""
                     <style>
                     #mapMode {
@@ -143,6 +143,7 @@ if data:
             placeholder="Select the Map Type",
         )
         st.markdown('</div>', unsafe_allow_html=True)
+        # -------------------------------------------------------------------------------------------------------------------------------
 
         if map_type == "Heat Map":
             layer = pdk.Layer(

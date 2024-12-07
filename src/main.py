@@ -1,7 +1,7 @@
-import streamlit as st
+import streamlit as st # type: ignore
 import requests
-import pandas as pd
-import pydeck as pdk
+import pandas as pd # type: ignore
+import pydeck as pdk # type: ignore
 from datetime import datetime, timedelta
 
 BASE_URL = "https://earthquake.usgs.gov/fdsnws/event/1/query"
@@ -38,7 +38,7 @@ def fetch_earthquake_data(time_period="Past Day"):
         st.error("Failed to fetch data from USGS API.")
         return None
 
-def switch_map_style(map_type="light map"):
+def switch_map_style(map_type="dark map"):
     return MAP_API_URLS[map_type]
 
 def parse_earthquake_data(data):
@@ -77,6 +77,7 @@ time_period = st.selectbox(
     placeholder="Select the Time Period",
     key="time_period_selectbox",
 )
+
 
 if time_period:
     data = fetch_earthquake_data(time_period)
@@ -127,8 +128,10 @@ if data:
             pdk.Deck(
                 map_style=switch_map_style(map_type),
                 initial_view_state=pdk.ViewState(
-                    latitude=filtered_df["latitude"].mean(),
-                    longitude=filtered_df["longitude"].mean(),
+                    latitude=30.3753,
+                    longitude=69.3451,
+                    # latitude=filtered_df["latitude"].mean(),
+                    # longitude=filtered_df["longitude"].mean(),
                     zoom=3,
                     pitch=0,
                 ),

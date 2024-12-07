@@ -108,14 +108,14 @@ with current_continent_col:
     if current_continent is None:
         current_continent = "Asia"
         st.write(f"Current Continent :red[{current_continent} [Default]]")
-    st.write(f"[Latitude- :red[{MAP_CONTINENT[current_continent][0]}], Longitude- :red[{MAP_CONTINENT[current_continent][1]}]]")
+    st.write(f"Latitude: :red[{MAP_CONTINENT[current_continent][0]}], Longitude: :red[{MAP_CONTINENT[current_continent][1]}]")
     
 if time_period:
     data = fetch_earthquake_data(time_period)
 else:
     data = fetch_earthquake_data()  
     
-slider_col, filter_btn_col, _ = st.columns([0.45, 0.45, 0.22], gap="large", vertical_alignment="center")
+slider_col, filter_btn_col, _= st.columns([0.45, 0.45, 0.22], gap="large", vertical_alignment="top")
 if data:
     with slider_col:
         df = parse_earthquake_data(data)
@@ -128,6 +128,9 @@ if data:
             st.session_state.filtered_df["color"] = st.session_state.filtered_df["magnitude"].apply(get_color)
         filtered_df = st.session_state.filtered_df if st.session_state.filtered_df is not None else df
         filtered_df["color"] = filtered_df["magnitude"].apply(get_color)
+        
+        ### getting the total sum of filtered data points
+        st.write(f"Filtered Data Points :red[{len(filtered_df)}]")
 
     map_type_col, _ = st.columns([1, 10])
     with map_type_col:

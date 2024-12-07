@@ -97,14 +97,17 @@ else:
 current_continent = st.selectbox("Select the Continent",
                                  list(MAP_CONTINENT.keys()),
                                  label_visibility="hidden",
-                                 index=0,
+                                 index=None,
                                  placeholder="Select the Continent",
                                  key="current_continent_selectbox")
 
-# Gives the output of the Current Continent
 if current_continent is not None:
     st.write(f"Current Continent :green[{current_continent}]")
-    st.write(f"Latitude :green[{MAP_CONTINENT[current_continent][0]}], Longitude :green[{MAP_CONTINENT[current_continent][1]}]")
+if current_continent is None:
+    current_continent = list(MAP_CONTINENT.keys())[0]
+    st.write(f"Current Continent :green[Default ({current_continent})]")
+# Gives the output of the Current Continent
+st.write(f"Latitude :green[{MAP_CONTINENT[current_continent][0]}], Longitude :green[{MAP_CONTINENT[current_continent][1]}]")
     
 if time_period:
     data = fetch_earthquake_data(time_period)
@@ -123,6 +126,15 @@ if data:
     col1, col2 = st.columns([4, 1])
 
     with col1:
+        # Fix this ASAP, Style not working
+        st.markdown("""
+                    <style>
+                    #mapMode {
+                        max-width:300px;
+                    }
+                    </style>
+                    """, unsafe_allow_html=True)
+        st.markdown('<div id="mapMode">', unsafe_allow_html=True)
         map_type = st.selectbox(
             "Select the type of map",
             list(MAP_API_URLS.keys()),
@@ -130,6 +142,7 @@ if data:
             index=0,
             placeholder="Select the Map Type",
         )
+        st.markdown('</div>', unsafe_allow_html=True)
 
         if map_type == "Heat Map":
             layer = pdk.Layer(

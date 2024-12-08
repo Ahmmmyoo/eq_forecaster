@@ -1,5 +1,7 @@
 FROM python:3.9-slim
 
+COPY . /app
+
 WORKDIR /app
 
 COPY requirements.txt ./
@@ -10,4 +12,6 @@ COPY . .
 
 EXPOSE 8501
 
-CMD ["streamlit", "run", "src/main.py"]
+ENV PYTHONPATH="/app"
+
+CMD ["streamlit", "run", "src/client/pages/overview.py"]

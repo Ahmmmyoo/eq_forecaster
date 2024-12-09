@@ -35,7 +35,7 @@ class SidebarRenderer:
                                     placeholder="Select the Continent",
                                     key="current_continent_selectbox")
         return current_continent
-    
+
     def render_sidebar(self):
         time_period = self.get_time_period()
         current_continent = self.get_current_continent();
@@ -43,5 +43,4 @@ class SidebarRenderer:
             "Minimum Magnitude", 
             0.0, 10.0, 0.0, 0.1
         )
-
         return time_period, current_continent, min_magnitude

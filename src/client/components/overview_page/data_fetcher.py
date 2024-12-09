@@ -2,8 +2,6 @@ import requests
 from datetime import datetime, timedelta
 
 class DataFetcher:
-    """Handles fetching earthquake data from USGS API."""
-
     BASE_URL = "https://earthquake.usgs.gov/fdsnws/event/1/query"
 
     @classmethod
@@ -27,16 +25,6 @@ class DataFetcher:
 
     @staticmethod
     def fetch_data(url, timeout=50):
-        """
-        Fetch data from the given URL.
-        
-        Args:
-            url (str): URL to fetch data from
-            timeout (int, optional): Request timeout. Defaults to 50.
-        
-        Returns:
-            dict or None: Parsed JSON data or None if request fails
-        """
         try:
             response = requests.get(url, timeout=timeout)
             response.raise_for_status()

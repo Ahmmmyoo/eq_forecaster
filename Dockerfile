@@ -14,4 +14,4 @@ EXPOSE 8501
 
 ENV PYTHONPATH="/app"
 
-CMD ["streamlit", "run", "src/client/pages/overview.py"]
+CMD ["streamlit", "run", "src/client/overview.py"]

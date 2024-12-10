@@ -1,4 +1,4 @@
-from src.client.components.overview_page.earthquake_map_app import EarthquakeMapApp
+from src.components.overview_page.earthquake_map_app import EarthquakeMapApp
 import streamlit as st # type: ignore
 
 class OverviewPage:

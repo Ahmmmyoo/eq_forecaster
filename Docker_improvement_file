@@ -1,0 +1,23 @@
+# Use a minimal Python base image
+FROM python:3.9-slim
+
+# Set working directory
+WORKDIR /app
+
+# Copy only the requirements file first to leverage caching
+COPY requirements.txt ./
+
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy the application code
+COPY . /app
+
+# Set environment variables
+ENV PYTHONPATH="/app"
+
+# Expose Streamlit default port
+EXPOSE 8501
+
+# Set the command to run the Streamlit application
+CMD ["streamlit", "run", "src/client/overview.py"]

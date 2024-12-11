@@ -53,9 +53,9 @@ class EarthquakeMapApp:
                 )
             map_col, color_bar_col = st.columns([0.9, 0.05], vertical_alignment="center")
             with map_col:
-                filtered_df_timeFixedToString = filtered_df
+                filtered_df_timeFixedToString = filtered_df.copy()
                 filtered_df_timeFixedToString['time'] = filtered_df_timeFixedToString['time'].apply(self.time_since)
-                self.map_renderer.render_map(filtered_df, map_type, current_continent)
+                self.map_renderer.render_map(filtered_df_timeFixedToString, map_type, current_continent)
             with color_bar_col:
                 self.map_renderer.show_color_bar()
             self.show_data_table(filtered_df)

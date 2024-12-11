@@ -22,7 +22,10 @@ class MapRenderer:
         }
 
     def render_map(self, filtered_df, map_type, current_continent):
+        filtered_df['formatted_time'] = filtered_df['time'].dt.strftime('%Y-%m-%d %H:%M:%S')
+
         layer = self._get_layer(filtered_df, map_type)
+
         st.pydeck_chart(
             pdk.Deck(
                 map_style=self.map_styles[map_type],
@@ -33,10 +36,13 @@ class MapRenderer:
                     pitch=0,
                 ),
                 layers=[layer],
-                tooltip={"text": "Place: {place}\nMagnitude: {magnitude}"},
+                tooltip={
+                    "text": "Place: {place}\nMagnitude: {magnitude}\nTime: {formatted_time}"
+                },
             ),
             height=600,
         )
+
 
     def _get_layer(self, df, map_type):
         if map_type == "Heat Map":

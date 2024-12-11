@@ -1,7 +1,6 @@
 import streamlit as st # type: ignore
 
-class SidebarRenderer:
-
+class Sidebar:
     def __init__(self, data_fetcher, map_renderer):
         self.time_period_urls = data_fetcher.get_time_period_urls()
         self.continents = map_renderer.continents

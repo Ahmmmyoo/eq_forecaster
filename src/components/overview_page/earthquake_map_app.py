@@ -2,14 +2,14 @@ import streamlit as st # type: ignore
 from .data_fetcher import DataFetcher
 from .data_processor import DataProcessor
 from .map_renderer import MapRenderer
-from ..include.sidebar_renderer import SidebarRenderer
+from .sidebar import Sidebar
 
 class EarthquakeMapApp:
     def __init__(self):
         self.map_renderer = MapRenderer()
         self.data_fetcher = DataFetcher()
         self.data_processor = DataProcessor()
-        self.sidebar_renderer = SidebarRenderer(self.data_fetcher, self.map_renderer)
+        self.sidebar_renderer = Sidebar(self.data_fetcher, self.map_renderer)
         self.map_styles = self.map_renderer.map_styles
 
     def show_data_table(self, df):

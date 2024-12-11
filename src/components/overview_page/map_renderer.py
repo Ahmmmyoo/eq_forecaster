@@ -33,7 +33,7 @@ class MapRenderer:
                     pitch=0,
                 ),
                 layers=[layer],
-                tooltip={"text": "Place: {place}\nMagnitude: {magnitude}"},
+                tooltip={"text": "Place: {place}\nMagnitude: {magnitude}\n{time}"},
             ),
             height=600,
         )

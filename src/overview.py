@@ -16,7 +16,7 @@ import streamlit as st # type: ignore
 class OverviewPage:
     @classmethod
     def run(cls):
-        st.set_page_config(page_title="Earthquake Map", layout="wide")
+        st.set_page_config(page_title="Earthquake Map Overview", layout="wide")
         app = EarthquakeMapApp()
         app.run()
 

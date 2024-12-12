@@ -1,3 +1,7 @@
 earthquake_env
 __pycache__
 .env
+/notebooks/eq_forecast_env
+
+# python env
+eq_forecast_env  

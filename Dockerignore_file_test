@@ -1,0 +1,66 @@
+# Python cache files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Logs and local databases
+*.log
+*.sqlite3
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Environment files
+.env
+.env.*
+
+# Version control system files
+.git/
+.gitignore
+.hg/
+.hgignore
+.svn/
+
+# Editor and IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Package management files
+node_modules/
+bower_components/
+pip-wheel-metadata/
+
+# Build artifacts
+build/
+dist/
+*.egg-info
+*.egg
+*.whl
+
+# Test and temporary files
+tests/
+test/
+coverage/
+.tox/
+*.coverage
+.nyc_output/
+
+# Docker-specific files (if unused in the build)
+.dockerignore
+docker-compose.override.yml
+
+# Other large or temporary files
+*.tar
+*.zip
+*.gz
+*.7z
+*.bak
+*.tmp
+*.old
+*.orig
+*.cache/
+*.npm/

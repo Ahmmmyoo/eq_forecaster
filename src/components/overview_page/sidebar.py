@@ -20,7 +20,7 @@ class Sidebar:
             "Select the time period for the earth quakes",
             list(self.time_period_urls.keys()), 
             label_visibility="hidden",
-            index= 3,
+            index= 2,
             placeholder="Select the Time Period",
             key="time_period_selectbox",
         )

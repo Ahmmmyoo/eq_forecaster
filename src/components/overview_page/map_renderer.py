@@ -22,7 +22,6 @@ class MapRenderer:
         }
 
     def render_map(self, filtered_df, map_type, current_continent):
-        filtered_df['formatted_time'] = filtered_df['time'].dt.strftime('%Y-%m-%d %H:%M:%S')
 
         layer = self._get_layer(filtered_df, map_type)
 
@@ -37,7 +36,7 @@ class MapRenderer:
                 ),
                 layers=[layer],
                 tooltip={
-                    "text": "Place: {place}\nMagnitude: {magnitude}\nTime: {formatted_time}"
+                    "text": "Place: {place}\nMagnitude: {magnitude}\n{time}"
                 },
             ),
             height=600,

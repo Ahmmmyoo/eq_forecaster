@@ -21,7 +21,8 @@ class EarthquakeMapApp:
         df_table_form.index = range(1, len(df_table_form) + 1)
         st.dataframe(df_table_form, use_container_width=True)
         
-    def time_since(self, timestamp):
+    @classmethod
+    def time_since(cls, timestamp):
         now = datetime.now()
         diff = now - timestamp
         # Get the difference in minutes, hours, and days

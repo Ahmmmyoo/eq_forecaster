@@ -1,6 +1,8 @@
 import pandas as pd # type: ignore
 import numpy as np
 
+from datetime import datetime
+
 class DataProcessor:
 
     @staticmethod
@@ -21,13 +23,23 @@ class DataProcessor:
             if feature["properties"]["mag"] is not None  
         ]
         return pd.DataFrame(earthquakes)
-
+    
     @classmethod
-    def get_color(cls, magnitude):
-        clamped_magnitude = np.clip(magnitude, 0, 10)
-        return [255, int(255 * (1 - (clamped_magnitude / 10))), 0, 200]
+    def time_since_hours(cls, timestamp):
+        now = datetime.now()
+        diff = now - timestamp
+        # Get the difference in hours
+        return (diff.total_seconds()/3600)
+        
+    @classmethod
+    def get_color(cls, magnitude, time):
+        clamped_magnitude_inverse = int(np.clip(np.interp(magnitude, (0, 10), (215, 0)), 0, 255))
+        clamped_magnitude = int(np.clip(np.interp(magnitude, (0, 10), (225, 255)), 0, 255))
+        time_since = cls.time_since_hours(time)
+        color_alpha_time_since = int(np.clip(np.interp(time_since, (0, 24*7), (250, 150)), 100, 250))
+        return [clamped_magnitude, clamped_magnitude_inverse, 0, color_alpha_time_since]
 
     def filter_data(self, df, min_magnitude=0.0):
         filtered_df = df[df["magnitude"] >= min_magnitude].copy()
-        filtered_df["color"] = filtered_df["magnitude"].apply(self.get_color)
+        filtered_df["color"] = filtered_df.apply(lambda row: self.get_color(row["magnitude"], row["time"]), axis=1)
         return filtered_df

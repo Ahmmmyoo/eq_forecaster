@@ -104,7 +104,7 @@ class EarthquakeMapApp:
             # st.write(f"Maximum magnitude :red[{round(max(filtered_df['magnitude']), 2)}]")
             # st.write(f"Minimum magnitude :orange[{round(min(filtered_df[filtered_df['magnitude'] != 0.0]['magnitude']), 2)}]")
             # Display magnitude distribution table
-            st.markdown("### Earthquake Magnitude Distribution")
+            st.markdown("### Earthquake Magnitude Distribution Table")
             st.write(self.earthquake_magnitude_count(filtered_df))
             st.markdown("### Earthquake Data Table")
             self.show_data_table(filtered_df)

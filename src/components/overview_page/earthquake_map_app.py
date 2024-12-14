@@ -4,6 +4,8 @@ from .data_processor import DataProcessor
 from .map_renderer import MapRenderer
 from .sidebar import Sidebar
 
+import pandas as pd
+
 from datetime import datetime
 
 class EarthquakeMapApp:
@@ -45,6 +47,34 @@ class EarthquakeMapApp:
                     placeholder="Select the Map Type",
                 )
                 return map_type
+            
+    def earthquake_magnitude_count(self, filtered_df):
+        # Count earthquakes in specific magnitude ranges
+        count_9_10 = len(filtered_df[(filtered_df['magnitude'] >= 9) & (filtered_df['magnitude'] <= 10)])
+        count_8_9 = len(filtered_df[(filtered_df['magnitude'] >= 8) & (filtered_df['magnitude'] < 9)])
+        count_7_8 = len(filtered_df[(filtered_df['magnitude'] >= 7) & (filtered_df['magnitude'] < 8)])
+        count_6_7 = len(filtered_df[(filtered_df['magnitude'] >= 6) & (filtered_df['magnitude'] < 7)])
+        count_5_6 = len(filtered_df[(filtered_df['magnitude'] >= 5) & (filtered_df['magnitude'] < 6)])
+        count_4_5 = len(filtered_df[(filtered_df['magnitude'] >= 4) & (filtered_df['magnitude'] < 5)])
+        count_3_4 = len(filtered_df[(filtered_df['magnitude'] >= 3) & (filtered_df['magnitude'] < 4)])
+        count_2_3 = len(filtered_df[(filtered_df['magnitude'] >= 2) & (filtered_df['magnitude'] < 3)])
+        count_1_2 = len(filtered_df[(filtered_df['magnitude'] >= 1) & (filtered_df['magnitude'] < 2)])
+        count_0_1 = len(filtered_df[(filtered_df['magnitude'] > 0) & (filtered_df['magnitude'] < 1)])
+        count_null = len(filtered_df[(filtered_df['magnitude'] == 0)])
+        # Prepare the table for display
+        table_data = {
+            'Magnitude Range': ['Null', '0-1', '1-2', '2-3', '3-4', '4-5', '5-6', '6-7', '7-8', '8-9', '9-10'],
+            'Count': [count_null, count_0_1, count_1_2, count_2_3, count_3_4, count_4_5, count_5_6, count_6_7, count_7_8, count_8_9, count_9_10]
+        }
+        # Create DataFrame
+        table_df = pd.DataFrame(table_data)
+        # Filter out rows where the count is zero
+        table_df = table_df[table_df['Count'] != 0]
+        # Transpose the table
+        table_df_transposed = table_df.transpose()
+        # Create a professional and color-coded table display
+        table_styled = table_df_transposed.style.set_table_attributes('class="table table-striped"').set_caption("Earthquake Magnitude Distribution")
+        return table_styled
 
     def run(self):
         time_period, current_continent, min_magnitude = self.sidebar_renderer.render_sidebar()
@@ -67,5 +97,14 @@ class EarthquakeMapApp:
                 self.map_renderer.render_map(filtered_df_timeFixedToString, map_type, current_continent)
             with color_bar_col:
                 self.map_renderer.show_color_bar()
-            st.title("Earthquake Data")
+            st.title("Earthquake Data Summary")
+            # Display total earthquakes and other statistics
+            st.write(f" Total earthquakes over :blue[{time_period}] are :blue[{len(filtered_df)}] \n with Maximum magnitude :red[{round(max(filtered_df['magnitude']), 2)}] and Minimum magnitude :orange[{round(min(filtered_df[filtered_df['magnitude'] != 0.0]['magnitude']), 2)}]")
+            # st.write(f"Total earthquakes over :blue[{time_period}] are :blue[{len(filtered_df)}]")
+            # st.write(f"Maximum magnitude :red[{round(max(filtered_df['magnitude']), 2)}]")
+            # st.write(f"Minimum magnitude :orange[{round(min(filtered_df[filtered_df['magnitude'] != 0.0]['magnitude']), 2)}]")
+            # Display magnitude distribution table
+            st.markdown("### Earthquake Magnitude Distribution")
+            st.write(self.earthquake_magnitude_count(filtered_df))
+            st.markdown("### Earthquake Data Table")
             self.show_data_table(filtered_df)

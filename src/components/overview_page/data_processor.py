@@ -32,14 +32,15 @@ class DataProcessor:
         return (diff.total_seconds()/3600)
         
     @classmethod
-    def get_color(cls, magnitude, time):
+    def get_color(cls, magnitude, time, min_time, max_time):
         clamped_magnitude_inverse = int(np.clip(np.interp(magnitude, (0, 10), (215, 0)), 0, 255))
         clamped_magnitude = int(np.clip(np.interp(magnitude, (0, 10), (225, 255)), 0, 255))
         time_since = cls.time_since_hours(time)
-        color_alpha_time_since = int(np.clip(np.interp(time_since, (0, 24*7), (250, 150)), 100, 250))
+        color_alpha_time_since = int(np.clip(np.interp(time_since, (min_time, max_time), (250, 100)), 100, 250))
         return [clamped_magnitude, clamped_magnitude_inverse, 0, color_alpha_time_since]
 
     def filter_data(self, df, min_magnitude=0.0):
         filtered_df = df[df["magnitude"] >= min_magnitude].copy()
-        filtered_df["color"] = filtered_df.apply(lambda row: self.get_color(row["magnitude"], row["time"]), axis=1)
+        min_time, max_time = filtered_df['time'].copy().apply(self.time_since_hours).agg(['min', 'max'])
+        filtered_df["color"] = filtered_df.apply(lambda row: self.get_color(row["magnitude"], row["time"], int(min_time), int(max_time)), axis=1)
         return filtered_df

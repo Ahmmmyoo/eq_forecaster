@@ -33,10 +33,10 @@ class DataProcessor:
         
     @classmethod
     def get_color(cls, magnitude, time, min_time, max_time):
-        clamped_magnitude_inverse = int(np.clip(np.interp(magnitude, (0, 10), (215, 0)), 0, 255))
+        clamped_magnitude_inverse = int(np.clip(np.interp(magnitude, (0, 8), (255, 0)), 0, 255))
         clamped_magnitude = int(np.clip(np.interp(magnitude, (0, 10), (225, 255)), 0, 255))
         time_since = cls.time_since_hours(time)
-        color_alpha_time_since = int(np.clip(np.interp(time_since, (min_time, max_time), (250, 100)), 100, 250))
+        color_alpha_time_since = int(np.clip(np.interp(time_since, (min_time, max_time), (250, 80)), 80, 250))
         return [clamped_magnitude, clamped_magnitude_inverse, 0, color_alpha_time_since]
 
     def filter_data(self, df, min_magnitude=0.0):

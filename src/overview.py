@@ -1,3 +1,5 @@
+# This is the entry point for streamlit.
+
 # ---------------------------------------------------------
 # Code For Running Outside Docker
 import sys

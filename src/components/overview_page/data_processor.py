@@ -28,7 +28,6 @@ class DataProcessor:
     def time_since_hours(cls, timestamp):
         now = datetime.now()
         diff = now - timestamp
-        # Get the difference in hours
         return (diff.total_seconds()/3600)
         
     @classmethod

@@ -25,7 +25,6 @@ class EarthquakeMapApp:
     def time_since(cls, timestamp):
         now = datetime.now()
         diff = now - timestamp
-        # Get the difference in minutes, hours, and days
         days = diff.days
         hours, remainder = divmod(diff.seconds, 3600)
         minutes = remainder // 60
@@ -56,10 +55,8 @@ class EarthquakeMapApp:
             st.title("Earthquake Map Viewer")
             map_col, color_bar_col = st.columns([0.9, 0.05], vertical_alignment="center")
             with map_col:
-                # dont delete this --------------------- 
                 filtered_df_timeFixedToString = filtered_df.copy()
                 filtered_df_timeFixedToString['time'] = filtered_df_timeFixedToString['time'].apply(self.time_since)
-                # --------------------------------------
                 st.title("Map")
                 map_type_col, _ = st.columns([2.5, 10])
                 with map_type_col:

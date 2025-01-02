@@ -6,7 +6,7 @@ class DataFetcher:
 
     @classmethod
     def get_time_period_urls(cls):
-        today = datetime.now()
+        today = datetime.now();
         six_months_ago = today - timedelta(days=182)
         start_of_this_year = datetime(today.year, 1, 1)
         end_of_previous_year = datetime(today.year - 1, 12, 31)
